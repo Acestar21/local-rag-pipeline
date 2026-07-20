@@ -1,10 +1,12 @@
 import pdfplumber
 import sqlite3
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, util
 from pathlib import Path
 
 SAMPLE_PDF = Path(__file__).parent.parent/"sample/Kushal_Resume.pdf"
+
+# INGEST
 
 print(SAMPLE_PDF)
 with pdfplumber.open(SAMPLE_PDF) as pdf:
@@ -38,6 +40,7 @@ def create_database():
                         content TEXT,
                         embedding BLOB
                     )''')
+    cursor.execute('''DELETE FROM chunks''')  # clear on each run
     
     conn.commit()
     conn.close()
@@ -73,3 +76,47 @@ create_database()
 insert_chunks(CHUNKS, EMBEDDING)
 
 verify_row_count()
+
+# RETRIEVAL 
+
+def load_chunks_and_embeddings():
+    conn = sqlite3.connect('document_embeddings.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''
+                    SELECT content,
+                    embedding FROM chunks
+        ''')
+    rows = cursor.fetchall()
+
+    chunks = [row[0] for row in rows]
+    embeddings = [np.frombuffer(row[1] , dtype = np.float32) for row in rows ]
+
+    conn.close()
+    return chunks, embeddings
+
+def embed_query(query):
+    query_embedding = model.encode(query)
+    return query_embedding
+
+def compute_cosine_similarity(query_embedding, chunks, embeddings):
+    similarities = [util.cos_sim(query_embedding, emb)[0][0].item() for emb in embeddings]
+    return chunks, similarities
+
+def print_top_3_relevant_chunks(chunks, similarities):
+    sorted_indices = np.argsort(similarities)[::-1][:3]
+    
+    for idx in sorted_indices:
+        print(f"Chunk: {chunks[idx]}")
+        print(f"Similarity: {similarities[idx]:.4f}")
+
+chunks, embeddings = load_chunks_and_embeddings()
+
+query = "What are your skills?"
+query_embedding = embed_query(query)
+
+chunks, similarities = compute_cosine_similarity(query_embedding, chunks, embeddings)
+print_top_3_relevant_chunks(chunks, similarities)
+
+# LOCAL LLM
+
