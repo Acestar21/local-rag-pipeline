@@ -3,6 +3,8 @@ import sqlite3
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
 from pathlib import Path
+import json
+import requests
 
 SAMPLE_PDF = Path(__file__).parent.parent/"sample/Kushal_Resume.pdf"
 
@@ -110,6 +112,34 @@ def print_top_3_relevant_chunks(chunks, similarities):
         print(f"Chunk: {chunks[idx]}")
         print(f"Similarity: {similarities[idx]:.4f}")
 
+# LOCAL LLM
+
+def join_context(chunks):
+    return "".join(chunks)
+
+def build_prompt(context):
+    prompt = f"Context: {context}\n\n Question: What are your skills?"
+    return prompt
+
+def call_ollama_api(prompt , model_name = "qwen2.5:7b"):
+    url = "http://localhost:11434/api/generate"
+
+    data = {
+        "prompt": prompt,
+        "model": model_name
+    }
+
+    response = requests.post(url , json = data, stream = True)
+
+    if response.status_code == 200:
+        for line in response.iter_lines():
+            if line:
+                data = json.loads(line.decode('utf-8'))
+                print(data.get("response", ""), end="", flush=True)
+
+    else :
+        print(f"Failed to fetch data from Ollama API. Status code: {response.status_code}")
+
 chunks, embeddings = load_chunks_and_embeddings()
 
 query = "What are your skills?"
@@ -118,5 +148,9 @@ query_embedding = embed_query(query)
 chunks, similarities = compute_cosine_similarity(query_embedding, chunks, embeddings)
 print_top_3_relevant_chunks(chunks, similarities)
 
-# LOCAL LLM
+top_3_chunks = [chunks[i] for i in np.argsort(similarities)[::-1][:3]]
+context = join_context(top_3_chunks)
+prompt = build_prompt(context)
+        
+call_ollama_api(prompt, model_name="qwen2.5:7b")
 
