@@ -1,6 +1,7 @@
 import pdfplumber
 import sqlite3
 from fastapi import FastAPI, Form, UploadFile, HTTPException, File  
+from fastapi.responses import StreamingResponse
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
 from pathlib import Path
@@ -14,8 +15,6 @@ SAMPLE_PDF = Path(__file__).parent.parent/"sample/Kushal_Resume.pdf"
 app = FastAPI()
 
 print(SAMPLE_PDF)
-with pdfplumber.open(SAMPLE_PDF) as pdf:
-    first_page = pdf.pages[0].extract_text()
 
 def chunk_text(text: str, chunk_size: int = 500, overlap: int = 50) -> list[str]:
     chunks = []
@@ -30,10 +29,6 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 def embed_chunks(chunks):
     embeddings = [model.encode(chunk) for chunk in chunks]
     return embeddings
-
-CHUNKS = chunk_text(first_page)
-EMBEDDING = embed_chunks(CHUNKS)
-
 
 def create_database():
     conn = sqlite3.connect('document_embeddings.db')
@@ -75,12 +70,6 @@ def verify_row_count():
     
     conn.close()
 
-
-create_database()
-
-insert_chunks(CHUNKS, EMBEDDING)
-
-verify_row_count()
 
 # RETRIEVAL 
 
@@ -125,32 +114,14 @@ def call_ollama_api(prompt, model_name="qwen2.5:7b"):
     data = {"prompt": prompt, "model": model_name}
     response = requests.post(url, json=data, stream=True)
     
-    full_response = ""
     if response.status_code == 200:
         for line in response.iter_lines():
             if line:
                 chunk = json.loads(line.decode('utf-8'))
-                full_response += chunk.get("response", "")
-    else :
-        print(f"Failed to fetch data from Ollama API. Status code: {response.status_code}")
-
-    return full_response
+                yield chunk.get("response", "")
+    else:
+        yield f"Error: {response.status_code}"
             
-
-
-# chunks, embeddings = load_chunks_and_embeddings()
-
-# query = "What are your skills?"
-# query_embedding = embed_query(query)
-
-# chunks, similarities = compute_cosine_similarity(query_embedding, chunks, embeddings)
-# print_top_3_relevant_chunks(chunks, similarities)
-
-# top_3_chunks = [chunks[i] for i in np.argsort(similarities)[::-1][:3]]
-# context = join_context(top_3_chunks)
-# prompt = build_prompt(context)
-        
-# call_ollama_api(prompt, model_name="qwen2.5:7b")
 
 @app.post("/ingest")
 async def ingest_pdf(file: UploadFile = File(...)):
@@ -176,8 +147,12 @@ async def query_user_question(question: str = Form(...)):
     top_chunks = get_top_3_chunks(chunks, similarities)
     context = join_context(top_chunks)
     prompt = build_prompt(context, question)
-    response = call_ollama_api(prompt)
-    return {"response": response}
+    
+    def generate():
+        for chunk in call_ollama_api(prompt):
+            yield f"data:{chunk}\n\n"
+    
+    return StreamingResponse(generate(), media_type="text/event-stream", headers={"Cache-Control": "no-cache"})
 
 if __name__ == "__main__":
     import uvicorn
