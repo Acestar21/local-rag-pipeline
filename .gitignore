@@ -1,3 +1,6 @@
 venv/
 *.db
 sample/
+book.pdf
+book.txt
+text_pdf.py
