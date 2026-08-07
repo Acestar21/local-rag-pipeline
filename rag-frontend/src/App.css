@@ -1,310 +1,797 @@
-.app-shell,
-#root,
-body {
-  min-height: 100vh;
+/* ==========================================================================
+   RAG Chat Application Stylesheet
+   Design System: Deep Dark Theme with Indigo/Purple Accents & Glassmorphism
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Root Variables & Reset
+   -------------------------------------------------------------------------- */
+:root {
+  --bg-dark: #090d16;
+  --bg-panel: rgba(15, 23, 42, 0.75);
+  --bg-panel-hover: rgba(30, 41, 59, 0.85);
+  --bg-card: rgba(15, 23, 42, 0.6);
+
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --accent-gradient-hover: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+
+  --border-light: rgba(148, 163, 184, 0.15);
+  --border-accent: rgba(139, 92, 246, 0.3);
+  --border-error: rgba(248, 113, 113, 0.4);
+
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.35);
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
 }
 
-#root {
-  width: 100%;
-  margin: 0;
-  text-align: left;
-  border: 0;
-}
-
-body {
-  margin: 0;
-  background: #090b12;
-}
-
+/* --------------------------------------------------------------------------
+   2. Main Layout Shell
+   -------------------------------------------------------------------------- */
 .app-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(circle at top left, rgba(99, 102, 241, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(168, 85, 247, 0.16), transparent 30%),
-    linear-gradient(180deg, #0b1020 0%, #0a0d16 55%, #090b12 100%);
-  color: #e5e7eb;
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.15), transparent 30%),
+    radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.12), transparent 35%),
+    linear-gradient(180deg, #090d16 0%, #060911 100%);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  position: relative;
+  overflow-x: hidden;
 }
 
+/* --------------------------------------------------------------------------
+   3. App Header
+   -------------------------------------------------------------------------- */
 .app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
-  backdrop-filter: blur(12px);
-  background: rgba(10, 13, 22, 0.76);
+  gap: 1.25rem;
+  padding: 1rem 2rem;
+  background: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
-.brand-block h1,
-.brand-block p {
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-icon-wrapper {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.85rem;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.4);
+}
+
+.brand-icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: #ffffff;
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
   margin: 0;
+  line-height: 1.2;
 }
 
-.eyebrow {
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
+.brand-subtitle {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #8b5cf6;
-  margin-bottom: 0.3rem;
-}
-
-.brand-block h1 {
-  font-size: clamp(1.35rem, 2.4vw, 2rem);
-  line-height: 1.1;
-  color: #f8fafc;
-  letter-spacing: -0.04em;
+  color: var(--accent-secondary);
+  font-weight: 600;
+  margin: 0;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   flex-wrap: wrap;
-  justify-content: flex-end;
 }
 
-.status-pill {
-  margin: 0;
-  padding: 0.6rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(15, 23, 42, 0.72);
-  color: #94a3b8;
-  font-size: 0.9rem;
+/* --------------------------------------------------------------------------
+   4. Status Pill & Upload Button
+   -------------------------------------------------------------------------- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-light);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
 }
 
-.status-pill.loaded {
+.status-badge.loaded {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: var(--border-accent);
   color: #c4b5fd;
-  border-color: rgba(139, 92, 246, 0.35);
 }
 
-.upload-button,
-.send-button {
-  border: 0;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #4f46e5, #7c3aed);
-  color: #f8fafc;
-  font-weight: 700;
-  letter-spacing: 0.01em;
+.status-badge.uploading {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #a5b4fc;
+}
+
+.status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--text-subtle);
+}
+
+.status-badge.loaded .status-dot {
+  background-color: var(--status-success);
+  box-shadow: 0 0 8px var(--status-success);
+}
+
+.status-badge.uploading .status-dot {
+  background-color: var(--accent-primary);
+  animation: pulseDot 1.2s infinite ease-in-out;
+}
+
+.doc-filename {
+  font-weight: 600;
+  color: var(--text-main);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
+  border: none;
+  border-radius: 9999px;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
-  transition:
-    transform 150ms ease,
-    box-shadow 150ms ease,
-    opacity 150ms ease;
+  box-shadow: var(--shadow-sm), 0 0 14px rgba(99, 102, 241, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.upload-button {
-  padding: 0.78rem 1.05rem;
-  box-shadow: 0 14px 34px rgba(79, 70, 229, 0.3);
-}
-
-.send-button {
-  padding: 0.9rem 1.15rem;
-  min-width: 6.5rem;
-}
-
-.upload-button:hover:not(:disabled),
-.send-button:hover:not(:disabled) {
+.upload-btn:hover:not(:disabled) {
+  background: var(--accent-gradient-hover);
   transform: translateY(-1px);
-  box-shadow: 0 18px 38px rgba(79, 70, 229, 0.34);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
 }
 
-.upload-button:disabled,
-.send-button:disabled {
-  opacity: 0.65;
+.upload-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.upload-btn:disabled {
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
-.upload-button:focus-visible,
-.send-button:focus-visible,
-.composer-input:focus-visible {
-  outline: 2px solid rgba(196, 181, 253, 0.8);
-  outline-offset: 2px;
+/* --------------------------------------------------------------------------
+   5. Alert Banner (Error State)
+   -------------------------------------------------------------------------- */
+.error-banner {
+  margin: 1rem 2rem 0;
+  padding: 0.85rem 1.25rem;
+  border-radius: 0.75rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid var(--border-error);
+  color: #fca5a5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.9rem;
+  animation: fadeSlideIn 0.3s ease-out forwards;
 }
 
-.file-input {
-  display: none;
+.error-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 
+.error-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--status-error);
+  flex-shrink: 0;
+}
+
+.error-dismiss {
+  background: transparent;
+  border: none;
+  color: #fca5a5;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.375rem;
+  transition: background 0.15s ease;
+}
+
+.error-dismiss:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   6. Chat Main Container
+   -------------------------------------------------------------------------- */
 .chat-panel {
   flex: 1;
-  overflow: hidden;
-  padding: 1.5rem;
-}
-
-.message-list,
-.empty-state {
-  width: min(100%, 1100px);
-  margin: 0 auto;
-}
-
-.message-list {
-  height: 100%;
-  overflow-y: auto;
-  padding: 0.25rem 0.25rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
   scroll-behavior: smooth;
 }
 
+.chat-content {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+/* --------------------------------------------------------------------------
+   7. Empty State View
+   -------------------------------------------------------------------------- */
+.empty-state-card {
+  margin: auto;
+  width: min(100%, 640px);
+  padding: 2.5rem 2rem;
+  border-radius: 1.25rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-light);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-md);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeSlideIn 0.4s ease-out forwards;
+}
+
+.empty-icon-ring {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid var(--border-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  color: #c4b5fd;
+}
+
+.empty-title {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.empty-description {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin: 0 0 1.75rem 0;
+  max-width: 480px;
+}
+
+.step-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.step-card {
+  padding: 1rem 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--border-light);
+  text-align: center;
+}
+
+.step-num {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--accent-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.step-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+  font-weight: 500;
+}
+
+.suggestions-block {
+  width: 100%;
+  text-align: left;
+  margin-top: 0.5rem;
+}
+
+.suggestions-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-subtle);
+  margin-bottom: 0.75rem;
+}
+
+.suggestion-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.chip-btn {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chip-btn:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.18);
+  border-color: var(--border-accent);
+  color: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.chip-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   8. Chat Messages & Bubbles
+   -------------------------------------------------------------------------- */
 .message-row {
   display: flex;
+  gap: 0.85rem;
+  animation: fadeSlideIn 0.25s ease-out forwards;
 }
 
 .message-row.user {
-  justify-content: flex-end;
+  flex-direction: row-reverse;
 }
 
-.message-row.assistant {
-  justify-content: flex-start;
+.avatar-badge {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.avatar-badge.user {
+  background: var(--accent-gradient);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+}
+
+.avatar-badge.assistant {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid var(--border-accent);
+  color: #c4b5fd;
 }
 
 .message-bubble {
-  max-width: min(75ch, 100%);
-  padding: 0.95rem 1.05rem;
+  max-width: min(85%, 720px);
+  padding: 0.9rem 1.25rem;
   border-radius: 1.15rem;
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  box-shadow: 0 14px 36px rgba(3, 7, 18, 0.24);
   line-height: 1.6;
-  white-space: pre-wrap;
+  font-size: 0.95rem;
+  position: relative;
   word-break: break-word;
 }
 
 .message-bubble.user {
-  background: linear-gradient(135deg, rgba(79, 70, 229, 0.98), rgba(124, 58, 237, 0.94));
-  color: #f8fafc;
-  border-bottom-right-radius: 0.35rem;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  border-bottom-right-radius: 0.25rem;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.25);
 }
 
 .message-bubble.assistant {
-  background: rgba(15, 23, 42, 0.88);
-  color: #e2e8f0;
-  border-bottom-left-radius: 0.35rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-light);
+  backdrop-filter: blur(8px);
+  color: var(--text-main);
+  border-bottom-left-radius: 0.25rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .message-bubble.error {
-  border-color: rgba(248, 113, 113, 0.45);
-  color: #fecaca;
+  border-color: var(--border-error);
+  background: rgba(239, 68, 68, 0.08);
+  color: #fca5a5;
 }
 
-.cursor {
+/* --------------------------------------------------------------------------
+   9. Thinking & Loading Indicators
+   -------------------------------------------------------------------------- */
+.thinking-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.pulse-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pulse-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background-color: var(--accent-secondary);
+  animation: pulseDot 1.4s infinite ease-in-out both;
+}
+
+.pulse-dot:nth-child(1) { animation-delay: 0s; }
+.pulse-dot:nth-child(2) { animation-delay: 0.2s; }
+.pulse-dot:nth-child(3) { animation-delay: 0.4s; }
+
+.streaming-cursor {
   display: inline-block;
-  width: 0.55ch;
-  height: 1em;
-  margin-left: 0.18ch;
-  border-radius: 999px;
-  background: #c4b5fd;
-  animation: blink 1s steps(2, start) infinite;
-  vertical-align: -0.12em;
+  width: 0.5ch;
+  height: 1.1em;
+  background-color: var(--accent-secondary);
+  margin-left: 0.2ch;
+  vertical-align: -0.15em;
+  border-radius: 1px;
+  animation: blink 0.9s infinite steps(2, start);
 }
 
-.empty-state {
-  height: 100%;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  color: #cbd5e1;
+.spin-icon {
+  animation: spin 1s linear infinite;
 }
 
-.empty-title {
-  font-size: clamp(1.5rem, 3vw, 2.35rem);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  color: #f8fafc;
-  margin: 0;
+/* --------------------------------------------------------------------------
+   10. Markdown Typography inside Assistant Messages
+   -------------------------------------------------------------------------- */
+.markdown-body {
+  color: var(--text-main);
 }
 
-.empty-copy {
-  max-width: 42rem;
-  margin-top: 0.75rem;
-  color: #94a3b8;
+.markdown-body p {
+  margin: 0 0 0.85rem 0;
 }
 
-.composer-bar {
-  padding: 0 1.5rem 1.5rem;
+.markdown-body p:last-child {
+  margin-bottom: 0;
 }
 
-.composer {
-  width: min(100%, 1100px);
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  color: #f1f5f9;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.1rem 0 0.5rem 0;
+}
+
+.markdown-body h1 { font-size: 1.3rem; }
+.markdown-body h2 { font-size: 1.15rem; }
+.markdown-body h3 { font-size: 1.05rem; }
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0 0 0.85rem 1.25rem;
+  padding: 0;
+}
+
+.markdown-body li {
+  margin-bottom: 0.35rem;
+}
+
+.markdown-body code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border-light);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.35rem;
+  color: #e2e8f0;
+}
+
+.markdown-body pre {
+  background: #060911;
+  border: 1px solid var(--border-light);
+  padding: 0.85rem 1rem;
+  border-radius: 0.6rem;
+  overflow-x: auto;
+  margin: 0.85rem 0;
+}
+
+.markdown-body pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.markdown-body blockquote {
+  margin: 0.85rem 0;
+  padding-left: 0.85rem;
+  border-left: 3px solid var(--accent-secondary);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.85rem 0;
+  font-size: 0.9rem;
+}
+
+.markdown-body th,
+.markdown-body td {
+  border: 1px solid var(--border-light);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.markdown-body th {
+  background: rgba(30, 41, 59, 0.6);
+  color: #f1f5f9;
+}
+
+.markdown-body a {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   11. Bottom Composer Bar
+   -------------------------------------------------------------------------- */
+.composer-area {
+  padding: 0.75rem 2rem 1.5rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  background: linear-gradient(180deg, transparent 0%, rgba(9, 13, 22, 0.95) 40%);
+}
+
+.composer-form {
+  width: min(100%, 860px);
   margin: 0 auto;
   display: flex;
-  gap: 0.75rem;
   align-items: center;
-  padding: 0.9rem;
-  border-radius: 1.2rem;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(15, 23, 42, 0.88);
-  box-shadow: 0 24px 50px rgba(2, 6, 23, 0.35);
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem 0.6rem 1.25rem;
+  border-radius: 9999px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-lg), 0 0 20px rgba(0, 0, 0, 0.4);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.composer-form:focus-within {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-lg), 0 0 20px rgba(139, 92, 246, 0.25);
 }
 
 .composer-input {
   flex: 1;
-  border: 0;
   background: transparent;
-  color: #f8fafc;
-  font: inherit;
-  padding: 0.25rem 0.15rem;
+  border: none;
+  outline: none;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.4rem 0;
   min-width: 0;
 }
 
 .composer-input::placeholder {
-  color: #64748b;
+  color: var(--text-subtle);
 }
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+.send-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 5.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 9999px;
+  border: none;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: var(--accent-gradient-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --------------------------------------------------------------------------
+   12. Keyframe Animations
+   -------------------------------------------------------------------------- */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseDot {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes blink {
-  0%,
-  49% {
-    opacity: 1;
-  }
-
-  50%,
-  100% {
-    opacity: 0;
-  }
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
-@media (max-width: 720px) {
-  .app-header,
-  .composer-bar,
-  .chat-panel {
-    padding-inline: 1rem;
-  }
-
-  .app-header,
-  .header-actions,
-  .composer {
+/* --------------------------------------------------------------------------
+   13. Responsive Breakpoints
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .app-header {
     flex-direction: column;
     align-items: stretch;
+    padding: 1rem;
+    gap: 0.85rem;
   }
 
   .header-actions {
-    justify-content: stretch;
+    justify-content: space-between;
   }
 
-  .status-pill,
-  .upload-button,
-  .send-button {
-    width: 100%;
-    text-align: center;
+  .status-badge {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .doc-filename {
+    max-width: 130px;
+  }
+
+  .chat-panel {
+    padding: 1rem;
+  }
+
+  .composer-area {
+    padding: 0.5rem 1rem 1rem;
+  }
+
+  .step-cards {
+    grid-template-columns: 1fr;
   }
 
   .message-bubble {
-    max-width: 100%;
+    max-width: 90%;
+  }
+
+  .error-banner {
+    margin: 0.75rem 1rem 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-title {
+    font-size: 1.1rem;
+  }
+
+  .send-btn {
+    min-width: 4.5rem;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .suggestion-chips {
+    flex-direction: column;
+  }
+
+  .chip-btn {
+    width: 100%;
+    text-align: left;
   }
 }
